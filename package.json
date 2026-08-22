@@ -8,6 +8,8 @@
   "scripts": {
     "compose:up": "docker compose up -d",
     "compose:down": "docker compose down",
-    "compose:logs": "docker compose logs -f"
+    "compose:logs": "docker compose logs -f",
+    "build": "pnpm --filter @easygen/shared build",
+    "test": "pnpm --filter @easygen/shared test"
   }
 }

@@ -1,6 +1,6 @@
 # Easy Generator Auth System
 
-Sign-up and sign-in for a private welcome page. This repository is a pnpm monorepo; right now it ships MongoDB via Docker. The API and frontend are next.
+Sign-up and sign-in for a private welcome page. This repository is a pnpm monorepo with shared validation contracts. Right now it ships MongoDB via Docker and `@easygen/shared`. The API and frontend are next.
 
 ## Where to go next
 
@@ -12,6 +12,8 @@ Sign-up and sign-in for a private welcome page. This repository is a pnpm monore
 
 ```bash
 cp .env.example .env
+pnpm install
+pnpm test
 pnpm compose:up
 ```
 
