@@ -109,6 +109,21 @@ AI was used to move quickly on scaffolding, boilerplate, and first drafts of doc
 - Lime-on-black CTAs guessed from a later marketing look. Sampling the live site and logo showed coral, black, and white.
 - `sonner` / react-hot-toast. One extra dependency for three screens was not worth it.
 
+## Web file structure
+
+**What AI helped with**
+
+- Folder-per-component split, CSS module extraction, and first drafts of the shared `Button` / `Form` primitives.
+
+**What was kept**
+
+- Cookie session client, Zod + React Hook Form, toast/spinner behaviour, brand tokens, and Zod contract tests (no React Testing Library).
+
+**What was rejected or reworked**
+
+- Empty `hooks.ts` / `helpers.ts` stubs on every folder. Associated files exist only when they have a role.
+- A mega `src/components/index.ts` barrel. Each component folder has its own `index.ts` re-export only.
+
 ## CI and Docker
 
 **What AI helped with**
