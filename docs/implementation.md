@@ -4,9 +4,16 @@ Technical documentation for what exists in this repository today.
 
 ## Current state
 
-This is a pnpm workspace. MongoDB runs via Docker with authentication enabled. Shared Zod contracts live in `packages/shared`. The API and web apps are not scaffolded yet (`apps/api` and `apps/web` are placeholders).
+pnpm workspace with:
 
-Architecture choice: a **modular monolith**. One API process later, with extractable `auth` and `users` modules. Not microservices — the product is a sign-up/sign-in flow, and extra network boundaries would add cost without a scaling need.
+- `packages/shared` — Zod field rules
+- `apps/api` — NestJS auth API
+- MongoDB 7 via Docker (root credentials)
+- `apps/web` — still a placeholder (React next)
+
+Architecture: a **modular monolith**. One Nest process, extractable `AuthModule` and `UsersModule`. Not microservices — this product is sign-up/sign-in; extra network hops would add cost without a scaling need.
+
+Sessions are **HttpOnly cookies** (`access_token`, `refresh_token`), not `localStorage`. The browser will talk to the web origin; Vite/nginx will proxy `/api` so cookies stay first-party (`SameSite=Lax`). Until the web app exists, call the API directly (Swagger or HTTP client) and send cookies.
 
 ## Getting started
 
@@ -16,20 +23,26 @@ Architecture choice: a **modular monolith**. One API process later, with extract
 - pnpm 10+
 - Docker and Docker Compose
 
-### Run MongoDB
+### Run
 
 ```bash
 cp .env.example .env
+pnpm install
 pnpm compose:up
+pnpm --filter @easygen/shared build
+pnpm dev:api
 ```
 
-Stop it with `pnpm compose:down`.
+- API: http://localhost:3000/api/health
+- Swagger: http://localhost:3000/api/docs
 
-Shared contracts (`pnpm test`, `pnpm build`) do not need MongoDB.
+Stop MongoDB with `pnpm compose:down`.
+
+Shared tests do not need MongoDB: `pnpm --filter @easygen/shared test`. API e2e uses mongodb-memory-server: `pnpm --filter api test:e2e`. Full suite: `pnpm test`.
 
 ### Environment variables
 
-Copy `.env.example` to `.env` at the repository root. Compose reads these:
+Copy `.env.example` to `.env` at the repository root. Do not commit `.env`.
 
 | Variable | Default | Purpose |
 |---|---|---|
@@ -37,23 +50,51 @@ Copy `.env.example` to `.env` at the repository root. Compose reads these:
 | `MONGO_INITDB_ROOT_USERNAME` | `easygen` | Mongo root user |
 | `MONGO_INITDB_ROOT_PASSWORD` | `changeme` | Mongo root password (change before any shared deploy) |
 | `MONGO_INITDB_DATABASE` | `easy_generator_auth` | Initial database name |
-
-Do not commit `.env`.
+| `NODE_ENV` | `development` | `development` / `test` / `production` |
+| `PORT` | `3000` | API listen port |
+| `MONGODB_URI` | (see example) | App connection string (`authSource=admin` with Compose root user) |
+| `JWT_ACCESS_SECRET` | (placeholder) | HMAC secret, at least 32 characters |
+| `JWT_ACCESS_TTL_SECONDS` | `900` | Access cookie lifetime (15 minutes) |
+| `REFRESH_TOKEN_TTL_DAYS` | `7` | Refresh cookie lifetime |
+| `COOKIE_SECURE` | `false` | Set `true` behind HTTPS |
+| `AUTH_THROTTLE_TTL_MS` | `60000` | Auth route throttle window |
+| `AUTH_THROTTLE_LIMIT` | `10` | Max auth requests per window |
 
 ## Layout
 
 ```
-apps/api/                 # placeholder — NestJS later
+apps/api/                 # NestJS modular monolith
 apps/web/                 # placeholder — React later
 packages/shared/          # Zod: email, name, password policy, API error shape
-docs/                     # business.md (product), implementation.md (this file)
-.cursor/rules/            # docs, security, git
+docs/
+.cursor/rules/
 docker-compose.yml        # MongoDB 7 only
 ```
 
 ### Shared contracts
 
-`@easygen/shared` is the source of truth for field rules. Sign-up uses the full password policy; sign-in only requires a non-empty password so failed logins stay generic. Emails are trimmed and lowercased. Build with `pnpm --filter @easygen/shared build`. Tests: `pnpm test`.
+`@easygen/shared` is the source of truth for field rules. Sign-up uses the full password policy; sign-in only requires a non-empty password so failed logins stay generic. Emails are trimmed and lowercased. Objects are `.strict()`.
+
+### API modules
+
+- `HealthModule` — `GET /api/health` (Mongo ping)
+- `UsersModule` — user persistence; `GET /api/users/me` (JWT cookie guard)
+- `AuthModule` — signup, signin, refresh, logout
+- `common/` — Zod pipe, exception filter (`statusCode`, `message`, `error`, `requestId`)
+- Logging: `nestjs-pino` with request ids; cookies, Authorization, and `password` redacted
+
+### Auth behaviour
+
+| Method | Path | Notes |
+|---|---|---|
+| POST | `/api/auth/signup` | `201`, sets cookies, unique email → `409` |
+| POST | `/api/auth/signin` | Generic `401 Invalid credentials` |
+| POST | `/api/auth/refresh` | Rotates refresh token; reuse of a revoked token revokes the family |
+| POST | `/api/auth/logout` | `204`, clears cookies, revokes refresh token |
+| GET | `/api/users/me` | Protected; never returns `passwordHash` |
+| GET | `/api/health` | `{ status: "ok" }` |
+
+Passwords are hashed with argon2id. Refresh tokens are stored as SHA-256 hashes with a TTL index. Access JWT lives only in the `access_token` cookie (`HttpOnly`, `SameSite=Lax`, `Path=/`, `Secure` when `COOKIE_SECURE=true`). Auth routes are throttled.
 
 ## Documentation
 
