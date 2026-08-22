@@ -1,0 +1,11 @@
+.logo {
+  display: block;
+  width: 180px;
+  height: auto;
+  margin: 0 auto 1.5rem;
+}
+
+.compact {
+  width: 148px;
+  margin: 0;
+}

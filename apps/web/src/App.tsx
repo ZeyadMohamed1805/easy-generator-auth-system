@@ -1,10 +1,10 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './auth/AuthProvider';
-import { GuestRoute, ProtectedRoute } from './auth/routes';
-import { ToastProvider } from './components/ToastProvider';
-import { SignInPage } from './pages/SignInPage';
-import { SignUpPage } from './pages/SignUpPage';
-import { WelcomePage } from './pages/WelcomePage';
+import AuthProvider from '@/components/AuthProvider';
+import { GuestRoute, ProtectedRoute } from '@/components/AuthRoutes';
+import ToastProvider from '@/components/ToastProvider';
+import SignInPage from '@/pages/SignInPage';
+import SignUpPage from '@/pages/SignUpPage';
+import WelcomePage from '@/pages/WelcomePage';
 
 export default function App() {
   return (

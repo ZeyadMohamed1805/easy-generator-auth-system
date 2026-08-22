@@ -1,32 +1,21 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useState,
-  type ReactNode,
 } from 'react';
 import type { PublicUser, SignInInput, SignUpInput } from '@easygen/shared';
-import { ApiError } from '../api/client';
+import { ApiError } from '@/api/client';
 import {
   fetchCurrentUser,
   signInRequest,
   signOutRequest,
   signUpRequest,
-} from '../api/auth';
+} from '@/api/auth';
+import { AuthContext } from './AuthContext';
+import type { AuthProviderProps } from './AuthProvider.types';
 
-type AuthContextValue = {
-  user: PublicUser | null;
-  loading: boolean;
-  signUp: (input: SignUpInput) => Promise<void>;
-  signIn: (input: SignInInput) => Promise<void>;
-  signOut: () => Promise<void>;
-};
-
-const AuthContext = createContext<AuthContextValue | null>(null);
-
-export function AuthProvider({ children }: { children: ReactNode }) {
+export default function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<PublicUser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -78,12 +67,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth(): AuthContextValue {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
-  return context;
 }
