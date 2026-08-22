@@ -31,6 +31,22 @@ AI was used to move quickly on scaffolding, boilerplate, and first drafts of doc
 - Asking for as-built documentation rather than a future-state architecture dump.
 - Constraining bonus work to logging, errors, tests, CI, and API docs — not Kubernetes or OAuth.
 
+## Shared contracts
+
+**What AI helped with**
+
+- First draft of Zod schemas and table-driven password tests.
+
+**What was kept**
+
+- One package (`@easygen/shared`) for email, name, password, sign-up/sign-in payloads, and the API error shape.
+- Sign-in password validation is “required only”, not the full policy, so the API cannot leak “your password is missing a number” on a bad login.
+
+**What was rejected**
+
+- Duplicating regexes in the API and the web app. Two copies would drift.
+- Applying the full password policy on sign-in.
+
 ## Later phases
 
-Entries will be appended when shared contracts, the API, the web app, and CI land.
+Entries will be appended when the API, the web app, and CI land.
