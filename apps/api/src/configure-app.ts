@@ -1,11 +1,12 @@
-import type { INestApplication } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
-export function configureApp(app: INestApplication): void {
+export function configureApp(app: NestExpressApplication): void {
   app.setGlobalPrefix('api');
+  app.set('trust proxy', 1);
   app.use(
     helmet({
       contentSecurityPolicy: false,

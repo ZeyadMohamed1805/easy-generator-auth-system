@@ -21,5 +21,38 @@ services:
       retries: 5
       start_period: 20s
 
+  api:
+    profiles: ["stack"]
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://${MONGO_INITDB_ROOT_USERNAME:-easygen}:${MONGO_INITDB_ROOT_PASSWORD:-changeme}@mongodb:27017/${MONGO_INITDB_DATABASE:-easy_generator_auth}?authSource=admin
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-change-me-to-a-long-random-string-min-32-chars}
+      JWT_ACCESS_TTL_SECONDS: ${JWT_ACCESS_TTL_SECONDS:-900}
+      REFRESH_TOKEN_TTL_DAYS: ${REFRESH_TOKEN_TTL_DAYS:-7}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      AUTH_THROTTLE_TTL_MS: ${AUTH_THROTTLE_TTL_MS:-60000}
+      AUTH_THROTTLE_LIMIT: ${AUTH_THROTTLE_LIMIT:-10}
+    ports:
+      - "${API_PORT:-3000}:3000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+  web:
+    profiles: ["stack"]
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - api
+
 volumes:
   mongo_data:

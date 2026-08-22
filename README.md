@@ -20,4 +20,6 @@ pnpm dev
 
 Then open http://localhost:5173. API docs: http://localhost:3000/api/docs.
 
+One-command stack (nginx + API + Mongo): `pnpm compose:stack` then http://localhost:8080.
+
 Prerequisites, stopping services, and environment variables: [docs/implementation.md](docs/implementation.md).
