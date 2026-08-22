@@ -1,0 +1,15 @@
+---
+description: Auth and security invariants for this project
+alwaysApply: true
+---
+
+# Security
+
+- Session tokens live in `HttpOnly` cookies only. Never `localStorage` or `sessionStorage`.
+- Access JWT is short-lived; refresh tokens are stored hashed and rotated.
+- Sign-in errors are generic. Do not reveal whether an email exists.
+- Validate every input on the server. Shared Zod schemas are the source of truth.
+- Email uniqueness is a Mongo unique index, not only an application check.
+- Never log passwords, cookies, Authorization headers, or token values.
+- Never return `passwordHash`. Hash passwords with argon2id.
+- `Secure` cookies in production. `SameSite=Lax`. Same-origin `/api` proxy.

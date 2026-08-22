@@ -1,0 +1,14 @@
+---
+description: Keep product, implementation, and AI docs in sync with the repo
+alwaysApply: true
+---
+
+# Documentation
+
+Update the matching doc in the same change as the code.
+
+- Product, UX, or field-rule changes → `docs/business.md` (no stack names).
+- Architecture, env, modules, Docker, tests, CI → `docs/implementation.md`.
+- Meaningful AI-assisted work → `AI.md` (what was generated, kept, rejected, and why).
+
+`implementation.md` and `.env.example` must match what exists now. Do not describe unbuilt code. Do not duplicate architecture into `README.md`; the README routes and shows how to run.

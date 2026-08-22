@@ -1,0 +1,11 @@
+---
+description: Branch per feature and commit at checkpoints
+alwaysApply: true
+---
+
+# Git
+
+- Branch off `main` for each feature or fix (`feat/…`, `fix/…`).
+- Commit at checkpoints, not one dump at the end. Conventional Commits: `feat:`, `fix:`, `docs:`, `test:`, `ci:`.
+- Never commit `.env`, secrets, or credentials. `.env.example` is the only env template.
+- Do not force-push `main`.
