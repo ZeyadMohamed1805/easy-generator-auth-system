@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signUpSchema } from '@easygen/shared';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { ApiError } from '../api/client';
@@ -8,6 +7,8 @@ import { useAuth } from '../auth/AuthProvider';
 import { AuthLayout } from '../components/AuthLayout';
 import { Field } from '../components/Field';
 import { PasswordHints } from '../components/PasswordHints';
+import { Spinner } from '../components/Spinner';
+import { useToast } from '../components/ToastProvider';
 
 type SignUpForm = {
   email: string;
@@ -17,36 +18,35 @@ type SignUpForm = {
 
 export function SignUpPage() {
   const { signUp } = useAuth();
+  const { showError } = useToast();
   const navigate = useNavigate();
-  const [serverError, setServerError] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, touchedFields },
   } = useForm<SignUpForm>({
     resolver: zodResolver(signUpSchema),
+    mode: 'onTouched',
     defaultValues: { email: '', name: '', password: '' },
   });
 
   const onSubmit = handleSubmit(async (values) => {
-    setServerError(null);
     try {
       await signUp(values);
       void navigate('/app');
     } catch (error) {
       if (error instanceof ApiError) {
-        setServerError(error.messages.join(' '));
+        showError(error.messages.join(' '));
         return;
       }
-      setServerError('Something went wrong. Please try again.');
+      showError('Something went wrong. Please try again.');
     }
   });
 
   return (
     <AuthLayout
-      title="Create an account"
-      subtitle="Name, email, and a password that meets the rules below."
+      heading="Create an account"
       footer={
         <>
           Already registered? <Link to="/sign-in">Sign in</Link>
@@ -54,20 +54,28 @@ export function SignUpPage() {
       }
     >
       <form className="form" onSubmit={onSubmit} noValidate>
-        <Field label="Name" error={errors.name?.message}>
-          <input
-            autoComplete="name"
-            {...register('name')}
-          />
+        <Field
+          label="Name"
+          error={errors.name?.message}
+          valid={Boolean(touchedFields.name && !errors.name)}
+          disabled={isSubmitting}
+        >
+          <input autoComplete="name" {...register('name')} />
         </Field>
-        <Field label="Email" error={errors.email?.message}>
-          <input
-            type="email"
-            autoComplete="email"
-            {...register('email')}
-          />
+        <Field
+          label="Email"
+          error={errors.email?.message}
+          valid={Boolean(touchedFields.email && !errors.email)}
+          disabled={isSubmitting}
+        >
+          <input type="email" autoComplete="email" {...register('email')} />
         </Field>
-        <Field label="Password" error={errors.password?.message}>
+        <Field
+          label="Password"
+          error={errors.password?.message}
+          valid={Boolean(touchedFields.password && !errors.password)}
+          disabled={isSubmitting}
+        >
           <input
             type="password"
             autoComplete="new-password"
@@ -75,13 +83,15 @@ export function SignUpPage() {
           />
         </Field>
         <PasswordHints value={watch('password')} />
-        {serverError ? (
-          <p className="form-error" role="alert">
-            {serverError}
-          </p>
-        ) : null}
         <button className="btn" type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Creating account…' : 'Create account'}
+          {isSubmitting ? (
+            <>
+              <Spinner />
+              Creating account…
+            </>
+          ) : (
+            'Create account'
+          )}
         </button>
       </form>
     </AuthLayout>

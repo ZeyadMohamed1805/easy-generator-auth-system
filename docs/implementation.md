@@ -112,7 +112,9 @@ Passwords are hashed with argon2id. Refresh tokens are stored as SHA-256 hashes 
 
 Routes: `/sign-up`, `/sign-in`, `/app` (protected). After signup or signin the UI calls `GET /api/users/me` (with a one-shot refresh on 401) and shows **Welcome to the application.** plus the user’s name and Log out.
 
-Forms use React Hook Form + the shared Zod schemas. Tokens are never written to `localStorage`. Fetch uses `credentials: 'include'`.
+Forms use React Hook Form + the shared Zod schemas (`mode: 'onTouched'`). Tokens are never written to `localStorage`. Fetch uses `credentials: 'include'`.
+
+Sign-in and sign-up share a centered `AuthLayout`: official wordmark (`BrandLogo` from `apps/web/src/assets/easygenerator-logo.svg`), fields, submit, and a link to the other page. The visible title/subtitle block is omitted so the card stays short; an `sr-only` heading remains for assistive tech. Colors come from CSS variables in `apps/web/src/index.css`, sampled from Easygenerator’s public site and logo (coral `#FC794B`, slate `#363E4E`, light grey `#F5F7FB`). Field errors use rose `#E11D48`; valid touched fields and met password rules use green `#16A34A`. API errors go through `ToastProvider` (top of viewport, `role="alert"`). Submit and log out show a CSS spinner and disable the control while the request runs. Session boot uses the same spinner.
 
 ### CI
 

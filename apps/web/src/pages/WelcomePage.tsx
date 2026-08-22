@@ -1,9 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ApiError } from '../api/client';
 import { useAuth } from '../auth/AuthProvider';
+import { BrandLogo } from '../components/BrandLogo';
+import { Spinner } from '../components/Spinner';
+import { useToast } from '../components/ToastProvider';
 
 export function WelcomePage() {
   const { user, signOut } = useAuth();
+  const { showError } = useToast();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
 
@@ -12,7 +17,12 @@ export function WelcomePage() {
     try {
       await signOut();
       void navigate('/sign-in');
-    } finally {
+    } catch (error) {
+      if (error instanceof ApiError) {
+        showError(error.messages.join(' '));
+      } else {
+        showError('Something went wrong. Please try again.');
+      }
       setBusy(false);
     }
   }
@@ -20,14 +30,21 @@ export function WelcomePage() {
   return (
     <div className="welcome">
       <header className="welcome-bar">
-        <p className="brand-kicker">Easy Generator</p>
+        <BrandLogo compact />
         <button
           className="btn btn-ghost"
           type="button"
           onClick={() => void onLogout()}
           disabled={busy}
         >
-          {busy ? 'Signing out…' : 'Log out'}
+          {busy ? (
+            <>
+              <Spinner />
+              Signing out…
+            </>
+          ) : (
+            'Log out'
+          )}
         </button>
       </header>
       <main className="welcome-card">
