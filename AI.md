@@ -90,6 +90,25 @@ AI was used to move quickly on scaffolding, boilerplate, and first drafts of doc
 - React Testing Library in this monorepo. Vite/Vitest loaded two React module instances (`useState` dispatcher was null). Rather than fake a passing component suite, web tests assert the same Zod contracts the forms import, and API e2e covers the session flow.
 - React 19 from `create vite` latest, then Vite 8. Pinned Vite 7 + React 18 so the toolchain matches Vitest 3.
 
+## Web brand refresh
+
+**What AI helped with**
+
+- Centered auth layout, CSS token pass, toast/spinner components, and first drafts of the docs updates.
+
+**What was kept**
+
+- Existing Zod + React Hook Form wiring, cookie session client, routes, and welcome copy.
+- Official Easygenerator header SVG from easygenerator.com (coral blob + wordmark), not a third-party PNG.
+- Public site tokens: coral `#FC794B` for primary actions, slate text, light grey page. Rose and green reserved for error and success so validation is not confused with the brand coral.
+- A small CSS toast and spinner. No new UI kit.
+
+**What was rejected or reworked**
+
+- The split-panel “quiet door” marketing column. The request was a simple centered form.
+- Lime-on-black CTAs guessed from a later marketing look. Sampling the live site and logo showed coral, black, and white.
+- `sonner` / react-hot-toast. One extra dependency for three screens was not worth it.
+
 ## CI and Docker
 
 **What AI helped with**

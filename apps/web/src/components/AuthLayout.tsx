@@ -1,32 +1,18 @@
-import { Link } from 'react-router-dom';
 import type { ReactNode } from 'react';
+import { BrandLogo } from './BrandLogo';
 
 type AuthLayoutProps = {
-  title: string;
-  subtitle: string;
+  heading: string;
   children: ReactNode;
   footer: ReactNode;
 };
 
-export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
+export function AuthLayout({ heading, children, footer }: AuthLayoutProps) {
   return (
-    <div className="shell">
-      <aside className="brand" aria-label="Product">
-        <p className="brand-kicker">Easy Generator</p>
-        <h1>A quiet door into your workspace.</h1>
-        <p>
-          Create an account or sign in. Field rules are the same on this page and on
-          the server — no surprises after submit.
-        </p>
-        <Link className="brand-home" to="/sign-in">
-          Auth module
-        </Link>
-      </aside>
+    <div className="auth-page">
       <main className="panel">
-        <header className="panel-header">
-          <h2>{title}</h2>
-          <p>{subtitle}</p>
-        </header>
+        <BrandLogo />
+        <h1 className="sr-only">{heading}</h1>
         {children}
         <p className="panel-footer">{footer}</p>
       </main>

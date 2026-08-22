@@ -1,14 +1,19 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
+import { Spinner } from '../components/Spinner';
+
+function BootScreen() {
+  return (
+    <div className="boot" role="status" aria-live="polite">
+      <Spinner size="lg" label="Loading" />
+    </div>
+  );
+}
 
 export function ProtectedRoute() {
   const { user, loading } = useAuth();
   if (loading) {
-    return (
-      <div className="boot" role="status" aria-live="polite">
-        Loading…
-      </div>
-    );
+    return <BootScreen />;
   }
   if (!user) {
     return <Navigate to="/sign-in" replace />;
@@ -19,11 +24,7 @@ export function ProtectedRoute() {
 export function GuestRoute() {
   const { user, loading } = useAuth();
   if (loading) {
-    return (
-      <div className="boot" role="status" aria-live="polite">
-        Loading…
-      </div>
-    );
+    return <BootScreen />;
   }
   if (user) {
     return <Navigate to="/app" replace />;

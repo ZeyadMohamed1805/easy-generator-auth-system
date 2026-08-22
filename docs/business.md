@@ -15,6 +15,14 @@ Anyone who needs to register with a name, email, and password, then return later
 
 They cannot open the application page unless they have a valid session. If they are already signed in, sign-up and sign-in send them to the application page.
 
+## How it looks and feels
+
+Sign-up and sign-in are a single centered form with the Easygenerator mark, the fields for that step, and a link to the other page. There is no extra marketing column.
+
+Field mistakes show next to the field in a strong error color as soon as the person leaves the field. A field that already meets the rules shows a clear success color. Password rules on sign-up light up as they are met.
+
+While the product is checking the account or ending the session, the person sees a spinner and cannot press the action again. Problems that come from the server (wrong sign-in details, an email that is already used, a network failure) appear as a toast at the top of the screen, not as a second error block in the form.
+
 ## Field rules
 
 These rules apply whenever someone submits a form. The product rejects invalid values before creating an account or starting a session.
