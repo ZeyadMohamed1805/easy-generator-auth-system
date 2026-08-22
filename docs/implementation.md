@@ -8,12 +8,12 @@ pnpm workspace with:
 
 - `packages/shared` — Zod field rules
 - `apps/api` — NestJS auth API
+- `apps/web` — React (Vite) UI
 - MongoDB 7 via Docker (root credentials)
-- `apps/web` — still a placeholder (React next)
 
 Architecture: a **modular monolith**. One Nest process, extractable `AuthModule` and `UsersModule`. Not microservices — this product is sign-up/sign-in; extra network hops would add cost without a scaling need.
 
-Sessions are **HttpOnly cookies** (`access_token`, `refresh_token`), not `localStorage`. The browser will talk to the web origin; Vite/nginx will proxy `/api` so cookies stay first-party (`SameSite=Lax`). Until the web app exists, call the API directly (Swagger or HTTP client) and send cookies.
+Sessions are **HttpOnly cookies** (`access_token`, `refresh_token`), not `localStorage`. The browser talks only to the web origin. Vite (dev) and nginx (Docker, later) proxy `/api` to Nest so cookies stay first-party (`SameSite=Lax`).
 
 ## Getting started
 
@@ -30,15 +30,16 @@ cp .env.example .env
 pnpm install
 pnpm compose:up
 pnpm --filter @easygen/shared build
-pnpm dev:api
+pnpm dev
 ```
 
-- API: http://localhost:3000/api/health
+- App: http://localhost:5173
+- API health: http://localhost:3000/api/health
 - Swagger: http://localhost:3000/api/docs
 
-Stop MongoDB with `pnpm compose:down`.
+`pnpm dev` starts the API and Vite together. Vite proxies `/api` to port 3000. Stop MongoDB with `pnpm compose:down`.
 
-Shared tests do not need MongoDB: `pnpm --filter @easygen/shared test`. API e2e uses mongodb-memory-server: `pnpm --filter api test:e2e`. Full suite: `pnpm test`.
+Tests: `pnpm test` (shared + API e2e + web schema tests). API e2e uses mongodb-memory-server.
 
 ### Environment variables
 
@@ -64,7 +65,7 @@ Copy `.env.example` to `.env` at the repository root. Do not commit `.env`.
 
 ```
 apps/api/                 # NestJS modular monolith
-apps/web/                 # placeholder — React later
+apps/web/                 # React + Vite, same-origin /api proxy
 packages/shared/          # Zod: email, name, password policy, API error shape
 docs/
 .cursor/rules/
@@ -95,6 +96,12 @@ docker-compose.yml        # MongoDB 7 only
 | GET | `/api/health` | `{ status: "ok" }` |
 
 Passwords are hashed with argon2id. Refresh tokens are stored as SHA-256 hashes with a TTL index. Access JWT lives only in the `access_token` cookie (`HttpOnly`, `SameSite=Lax`, `Path=/`, `Secure` when `COOKIE_SECURE=true`). Auth routes are throttled.
+
+### Web app
+
+Routes: `/sign-up`, `/sign-in`, `/app` (protected). After signup or signin the UI calls `GET /api/users/me` (with a one-shot refresh on 401) and shows **Welcome to the application.** plus the user’s name and Log out.
+
+Forms use React Hook Form + the shared Zod schemas. Tokens are never written to `localStorage`. Fetch uses `credentials: 'include'`.
 
 ## Documentation
 
