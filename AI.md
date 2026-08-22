@@ -71,6 +71,25 @@ AI was used to move quickly on scaffolding, boilerplate, and first drafts of doc
 
 - “Fail closed on refresh-token reuse” produced a family revoke that was worth keeping.
 
+## Web app
+
+**What AI helped with**
+
+- Vite + React Router scaffolding, form wiring, and a first Testing Library suite.
+
+**What was kept**
+
+- Same-origin `/api` proxy so cookies are first-party.
+- Shared Zod schemas in React Hook Form — one policy on both sides.
+- Silent refresh on `GET /users/me` 401, not on `/api/auth/*` (so bad passwords stay 401).
+- The assignment’s welcome copy, plus name and logout.
+
+**What was rejected or reworked**
+
+- Storing JWT in `localStorage`.
+- React Testing Library in this monorepo. Vite/Vitest loaded two React module instances (`useState` dispatcher was null). Rather than fake a passing component suite, web tests assert the same Zod contracts the forms import, and API e2e covers the session flow.
+- React 19 from `create vite` latest, then Vite 8. Pinned Vite 7 + React 18 so the toolchain matches Vitest 3.
+
 ## Later phases
 
-Entries will be appended when the web app and CI land.
+Entries will be appended when Dockerfiles, Compose for the full stack, and CI land.

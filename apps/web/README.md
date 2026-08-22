@@ -1,5 +1,3 @@
 # Web
 
-Placeholder. The React app will live here.
-
-See [docs/implementation.md](../../docs/implementation.md) for the current repository state.
+React (Vite + TypeScript) sign-up / sign-in UI. Same-origin `/api` proxy. See [docs/implementation.md](../../docs/implementation.md).
