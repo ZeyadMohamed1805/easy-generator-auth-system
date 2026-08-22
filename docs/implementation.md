@@ -13,7 +13,7 @@ pnpm workspace with:
 
 Architecture: a **modular monolith**. One Nest process, extractable `AuthModule` and `UsersModule`. Not microservices — this product is sign-up/sign-in; extra network hops would add cost without a scaling need.
 
-Sessions are **HttpOnly cookies** (`access_token`, `refresh_token`), not `localStorage`. The browser talks only to the web origin. Vite (dev) and nginx (Docker, later) proxy `/api` to Nest so cookies stay first-party (`SameSite=Lax`).
+Sessions are **HttpOnly cookies** (`access_token`, `refresh_token`), not `localStorage`. The browser talks only to the web origin. Vite (local `pnpm dev`) and nginx (Compose `stack` profile) proxy `/api` to Nest so cookies stay first-party (`SameSite=Lax`).
 
 ## Getting started
 
@@ -37,9 +37,17 @@ pnpm dev
 - API health: http://localhost:3000/api/health
 - Swagger: http://localhost:3000/api/docs
 
-`pnpm dev` starts the API and Vite together. Vite proxies `/api` to port 3000. Stop MongoDB with `pnpm compose:down`.
+`pnpm dev` starts the API and Vite together. Vite proxies `/api` to port 3000. Stop services with `pnpm compose:down`.
 
-Tests: `pnpm test` (shared + API e2e + web schema tests). API e2e uses mongodb-memory-server.
+Full stack in Docker (nginx + API + Mongo):
+
+```bash
+pnpm compose:stack
+```
+
+Then open http://localhost:8080. Tear down with `pnpm compose:down`.
+
+Tests: `pnpm test` (shared + API e2e + web). API e2e uses mongodb-memory-server locally, or `E2E_MONGODB_URI` in CI. GitHub Actions runs the same suite on push/PR to `main`.
 
 ### Environment variables
 
@@ -60,16 +68,19 @@ Copy `.env.example` to `.env` at the repository root. Do not commit `.env`.
 | `COOKIE_SECURE` | `false` | Set `true` behind HTTPS |
 | `AUTH_THROTTLE_TTL_MS` | `60000` | Auth route throttle window |
 | `AUTH_THROTTLE_LIMIT` | `10` | Max auth requests per window |
+| `API_PORT` | `3000` | Host port for the API container (`stack` profile) |
+| `WEB_PORT` | `8080` | Host port for the nginx container (`stack` profile) |
 
 ## Layout
 
 ```
 apps/api/                 # NestJS modular monolith
-apps/web/                 # React + Vite, same-origin /api proxy
+apps/web/                 # React + Vite; nginx image proxies /api
 packages/shared/          # Zod: email, name, password policy, API error shape
 docs/
 .cursor/rules/
-docker-compose.yml        # MongoDB 7 only
+.github/workflows/ci.yml  # install, test, build
+docker-compose.yml        # Mongo always; api+web behind profile "stack"
 ```
 
 ### Shared contracts
@@ -102,6 +113,10 @@ Passwords are hashed with argon2id. Refresh tokens are stored as SHA-256 hashes 
 Routes: `/sign-up`, `/sign-in`, `/app` (protected). After signup or signin the UI calls `GET /api/users/me` (with a one-shot refresh on 401) and shows **Welcome to the application.** plus the user’s name and Log out.
 
 Forms use React Hook Form + the shared Zod schemas. Tokens are never written to `localStorage`. Fetch uses `credentials: 'include'`.
+
+### CI
+
+`.github/workflows/ci.yml` on push/PR to `main`: pnpm install, shared tests, API e2e against a Mongo 7 service, web tests, API and web production builds.
 
 ## Documentation
 

@@ -90,6 +90,19 @@ AI was used to move quickly on scaffolding, boilerplate, and first drafts of doc
 - React Testing Library in this monorepo. Vite/Vitest loaded two React module instances (`useState` dispatcher was null). Rather than fake a passing component suite, web tests assert the same Zod contracts the forms import, and API e2e covers the session flow.
 - React 19 from `create vite` latest, then Vite 8. Pinned Vite 7 + React 18 so the toolchain matches Vitest 3.
 
-## Later phases
+## CI and Docker
 
-Entries will be appended when Dockerfiles, Compose for the full stack, and CI land.
+**What AI helped with**
+
+- First drafts of multi-stage Dockerfiles and a GitHub Actions workflow.
+
+**What was kept**
+
+- Compose profile `stack` so day-to-day `pnpm compose:up` is still Mongo-only for `pnpm dev`.
+- nginx in front of the SPA so production cookies stay first-party, same as Vite.
+- CI uses a Mongo service (`E2E_MONGODB_URI`) instead of downloading mongodb-memory-server’s 700MB+ binary on every run.
+
+**What was rejected**
+
+- Kubernetes, a reverse-proxy mesh, or splitting the API into multiple images. That would pad the take-home without improving the auth story.
+

@@ -1,4 +1,4 @@
-import type { INestApplication } from '@nestjs/common';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { Test } from '@nestjs/testing';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import request from 'supertest';
@@ -11,14 +11,18 @@ const validUser = {
 };
 
 describe('Auth API (e2e)', () => {
-  let app: INestApplication | undefined;
+  let app: NestExpressApplication | undefined;
   let mongod: MongoMemoryServer | undefined;
-  let server: ReturnType<INestApplication['getHttpServer']>;
+  let server: ReturnType<NestExpressApplication['getHttpServer']>;
 
   beforeAll(async () => {
-    mongod = await MongoMemoryServer.create();
+    if (process.env.E2E_MONGODB_URI) {
+      process.env.MONGODB_URI = process.env.E2E_MONGODB_URI;
+    } else {
+      mongod = await MongoMemoryServer.create();
+      process.env.MONGODB_URI = mongod.getUri();
+    }
     process.env.NODE_ENV = 'test';
-    process.env.MONGODB_URI = mongod.getUri();
     process.env.JWT_ACCESS_SECRET = 'test-jwt-access-secret-min-32-chars!!';
     process.env.JWT_ACCESS_TTL_SECONDS = '900';
     process.env.REFRESH_TOKEN_TTL_DAYS = '7';
@@ -37,7 +41,7 @@ describe('Auth API (e2e)', () => {
       imports: [AppModule],
     }).compile();
 
-    app = moduleRef.createNestApplication();
+    app = moduleRef.createNestApplication<NestExpressApplication>();
     configureApp(app);
     await app.init();
     server = app.getHttpServer();
