@@ -9,7 +9,12 @@
     "compose:up": "docker compose up -d",
     "compose:down": "docker compose down",
     "compose:logs": "docker compose logs -f",
-    "build": "pnpm --filter @easygen/shared build",
-    "test": "pnpm --filter @easygen/shared test"
+    "build": "pnpm --filter @easygen/shared build && pnpm --filter api build",
+    "dev:api": "pnpm --filter @easygen/shared build && pnpm --filter api start:dev",
+    "test": "pnpm --filter @easygen/shared test && pnpm --filter api test:e2e",
+    "lint": "pnpm --filter api lint"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["argon2", "esbuild", "mongodb-memory-server"]
   }
 }

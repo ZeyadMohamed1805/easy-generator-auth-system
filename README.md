@@ -1,6 +1,6 @@
 # Easy Generator Auth System
 
-Sign-up and sign-in for a private welcome page. This repository is a pnpm monorepo with shared validation contracts. Right now it ships MongoDB via Docker and `@easygen/shared`. The API and frontend are next.
+Sign-up and sign-in for a private welcome page. NestJS API with HttpOnly cookie sessions, shared Zod contracts, and MongoDB. The React app is next.
 
 ## Where to go next
 
@@ -13,8 +13,11 @@ Sign-up and sign-in for a private welcome page. This repository is a pnpm monore
 ```bash
 cp .env.example .env
 pnpm install
-pnpm test
 pnpm compose:up
+pnpm --filter @easygen/shared build
+pnpm dev:api
 ```
+
+Then open http://localhost:3000/api/docs.
 
 Prerequisites, stopping services, and environment variables: [docs/implementation.md](docs/implementation.md).

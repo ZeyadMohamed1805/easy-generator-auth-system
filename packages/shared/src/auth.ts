@@ -3,16 +3,20 @@ import { emailSchema } from './email';
 import { nameSchema } from './name';
 import { passwordSchema, signInPasswordSchema } from './password';
 
-export const signUpSchema = z.object({
-  email: emailSchema,
-  name: nameSchema,
-  password: passwordSchema,
-});
+export const signUpSchema = z
+  .object({
+    email: emailSchema,
+    name: nameSchema,
+    password: passwordSchema,
+  })
+  .strict();
 
-export const signInSchema = z.object({
-  email: emailSchema,
-  password: signInPasswordSchema,
-});
+export const signInSchema = z
+  .object({
+    email: emailSchema,
+    password: signInPasswordSchema,
+  })
+  .strict();
 
 export const publicUserSchema = z.object({
   id: z.string(),
